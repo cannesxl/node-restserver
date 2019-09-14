@@ -1,66 +1,47 @@
 require('./config/config');
 
-const express = require('express')
+const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
 
+
 const bodyParser = require('body-parser');
-
-
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
+
+
+app.use(require('./routes/usuario'));
+
+
+
+
  
 // parse application/json
 app.use(bodyParser.json())
 
 
 
- 
-
-
-app.get('/usuario', function (req, res) {
-  res.send('get suario')
-})
-
-//se suele usar para crear
-app.post('/usuario', function (req, res) {
-
-    let body = req.body;
-
-    if (body.nombre === undefined){
-        res.status(400).json({
-            ok: false,
-            mensaje:  "No se ha definido nombre"
-        });
-    }else{
-        res.json({
-            persona: body
-        }); 
-    }
-})
-
-//se suele usar para actualizar
-app.put('/usuario/:id', function (req, res) {
-    let id = req.params.id;
-    res.json({
-        id
-    });
-})
-
-//no se suele borrar, si no cambiar algo en el regustro
-app.delete('/usuario', function (req, res) {
-  res.send('delete suario')
-})
 
 
 
+mongoose.connect(process.env.URLDB,
+    //useCreateIndex => incluye mongoose-unique-validator
+    { 
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false
+    },
+   (err, res) => { 
+    if(err){
+        console.log("ERROR AL CONECTAR");
+        throw err;
+    } 
+    console.log('BBDD Online');
+});
 
 
 
-
-
-
-
- 
 app.listen(process.env.PORT, () => {
     console.log("Escuchando puerto 3000");
 })
