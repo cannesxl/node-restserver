@@ -1,13 +1,19 @@
 const express = require('express');
-const Usuario = require('../models/usuario');
 const bcrypt = require('bcrypt');
 const _ = require('underscore'); //libreria que amplia muchas funciones de js (*echar ojo)
+
+
+
+const Usuario = require('../models/usuario');
+const { verificaToken, verificarAdminRole} = require('../middlewares/autenticacion');
+
+
 
 const app = express(); 
 
 
 
-app.get('/usuario', function (req, res) {
+app.get('/usuario', verificaToken,   (req, res) => {
 
     let desde = req.query.desde || 0; 
     let limite = req.query.limite || 5;
@@ -44,7 +50,7 @@ app.get('/usuario', function (req, res) {
 
 
 
-app.post('/usuario', function (req, res) {
+app.post('/usuario', [verificaToken, verificarAdminRole], (req, res) => {
 
     let body = req.body;
 
@@ -82,7 +88,7 @@ app.post('/usuario', function (req, res) {
 
 
 //actualizar usuario
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id', [verificaToken, verificarAdminRole],  (req, res) => {
     let id = req.params.id;
 
     let body = _.pick( req.body, ['nombre','email','img','role','estado'] ); //filtro los campos q si quiero que recoja del objeto actual
@@ -105,7 +111,7 @@ app.put('/usuario/:id', function (req, res) {
 })
 
 //no se suele borrar, si no cambiar algo en el regustro
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verificaToken, verificarAdminRole], (req, res) => {
     let usuario = req.params.id;
 
     let cambiaEstado = {
